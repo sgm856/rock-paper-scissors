@@ -1,18 +1,25 @@
-console.log("Hi. Fuck die Post.");
-
-let humanScore = 0;
-let computerScore = 0;
-
 function playGame() {
+    let humanScore = 0;
+    let computerScore = 0;
     for (let i = 0; i < 5; i++) {
         let humanChoice = getHumanChoice();
         let computerChoice = getComputerChoice();
-        playRound(humanChoice, computerChoice);
+        let playerWon = playRoundAndReportPlayerWin(humanChoice, computerChoice) ?? 0;
+        if (playerWon > 0) {
+            humanScore++;
+            announceWinnerBeatsLoser(humanChoice, computerChoice);
+        } else if (playerWon < 0) {
+            computerScore++;
+            announceWinnerBeatsLoser(computerChoice, humanChoice);
+        } else {
+            announceWinnerBeatsLoser(humanChoice, humanChoice, false);
+        }
+        console.log(`Player score: ${humanScore}\nComputer Score:${computerScore}`);
     }
-    announceWinner();
+    announceWinner(humanScore, computerScore);
 }
 
-function announceWinner() {
+function announceWinner(humanScore, computerScore) {
     if (humanScore > computerScore) {
         console.log("You won!");
     } else {
@@ -20,51 +27,28 @@ function announceWinner() {
     }
 }
 
-function playRound(humanChoice, computerChoice) {
-    if (!(humanChoice === computerChoice)) {
-        if (humanChoice === "scissors") {
-            if (computerChoice === 'paper') {
-                playerWin();
-                announceWinnerBeatsLoser(humanChoice, computerChoice);
-            } else {
-                playerLose();
-                announceWinnerBeatsLoser(computerChoice, humanChoice);
-            }
-        }
-        if (humanChoice === 'rock') {
-            if (computerChoice === 'scissors') {
-                playerWin();
-                announceWinnerBeatsLoser(humanChoice, computerChoice);
-            } else {
-                playerLose();
-                announceWinnerBeatsLoser(computerChoice, humanChoice);
-            }
-        }
-        if (humanChoice === 'paper') {
-            if (computerChoice === 'rock') {
-                playerWin();
-                announceWinnerBeatsLoser(humanChoice, computerChoice);
-            } else {
-                playerLose();
-                announceWinnerBeatsLoser(computerChoice, humanChoice);
-            }
-        }
+function playRoundAndReportPlayerWin(humanChoice, computerChoice) {
+    if (humanChoice === computerChoice) {
+        return 0;
+    }
+    winConditions = {
+        rock: "scissors",
+        scissors: "paper",
+        paper: "rock"
+    }
+    if (computerChoice === winConditions[humanChoice]) {
+        return 1;
     } else {
-        console.log(`${humanChoice} does not beat ${computerChoice}`);
+        return -1;
     }
 }
 
-function announceWinnerBeatsLoser(choice1, choice2) {
-    console.log(`${choice1} beats ${choice2}`);
-    console.log(`Player score: ${humanScore}\nComputer Score:${computerScore}`);
-}
-
-function playerWin() {
-    humanScore += 1;
-}
-
-function playerLose() {
-    computerScore += 1;
+function announceWinnerBeatsLoser(choice1, choice2, notTied = true) {
+    if (notTied) {
+        console.log(`${choice1} beats ${choice2}`);
+    } else {
+        console.log(`${choice1} does not beat ${choice2}`);
+    }
 }
 
 function getHumanChoice() {
