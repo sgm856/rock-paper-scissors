@@ -1,4 +1,4 @@
-buttons = document.querySelectorAll("button.play");
+const buttons = document.querySelectorAll("button.play");
 buttons.forEach((button) => {
     button.addEventListener("click", (clickEvent) => {
         let playEvent = new CustomEvent("playEvent", {
@@ -13,7 +13,7 @@ buttons.forEach((button) => {
     });
 });
 
-playArea = document.querySelector(".play-area");
+const playArea = document.querySelector(".play-area");
 playArea.addEventListener('playEvent', (event) => {
     const detail = event.detail;
     const winConditions = {
@@ -25,11 +25,11 @@ playArea.addEventListener('playEvent', (event) => {
     let roundTracker = document.querySelector(".round-tracker");
     let playerScoreTracker = document.querySelector(".player-score-tracker");
     let computerScoreTracker = document.querySelector(".computer-score-tracker");
-    let resultsDisplay = document.querySelector(".results-display");
+    let announcementDisplay = document.querySelector(".results-display");
 
-    if (!resultsDisplay) {
-        resultsDisplay = document.createElement("ul");
-        resultsDisplay.classList.add("results-display");
+    if (!announcementDisplay) {
+        announcementDisplay = document.createElement("li");
+        announcementDisplay.classList.add("results-display");
     }
 
     let playerScoreText = playerScoreTracker.textContent;
@@ -38,7 +38,6 @@ playArea.addEventListener('playEvent', (event) => {
     let playerScore = parseInt(playerScoreText.match(/\d+/)[0]);
     let computerScore = parseInt(computerScoreText.match(/\d+/)[0]);
 
-    debugger;
     if (winConditions[detail.playerChoice] === detail.computerChoice) {
         playerScoreTracker.textContent = `Player score: ${playerScore + 1}`;
     } else if (winConditions[detail.computerChoice] === detail.playerChoice) {
@@ -47,21 +46,34 @@ playArea.addEventListener('playEvent', (event) => {
 
     round = parseInt(roundTracker.textContent.match(/\d+/)[0]);
     roundTracker.textContent = `Round: ${round + 1}`;
+    list = document.querySelector("ul");
+    if (parseElement(roundTracker) % 5 === 0) {
+        announcementDisplay.textContent = announceWinner(parseElement(playerScoreTracker), parseElement(computerScoreTracker));
+        list.appendChild(announcementDisplay);
+    } else {
+        list.removeChild(announcementDisplay);
+    }
 })
+
+function parseElement(element) {
+    return parseInt(element.textContent.match(/\d+/)[0]);
+}
 
 function announceWinner(humanScore, computerScore) {
     if (humanScore > computerScore) {
-        console.log("You won!");
+        return "You won!";
+    } else if (humanScore < computerScore) {
+        return "Better luck next time.";
     } else {
-        console.log("Better luck next time.");
+        return "You tied!";
     }
 }
 
 function announceWinnerBeatsLoser(choice1, choice2, notTied = true) {
     if (notTied) {
-        console.log(`${choice1} beats ${choice2}`);
+        return `${choice1} beats ${choice2}`;
     } else {
-        console.log(`${choice1} does not beat ${choice2}`);
+        return `${choice1} does not beat ${choice2}`;
     }
 }
 
