@@ -1,23 +1,53 @@
-function playGame() {
-    let humanScore = 0;
-    let computerScore = 0;
-    for (let i = 0; i < 5; i++) {
-        let humanChoice = getHumanChoice();
-        let computerChoice = getComputerChoice();
-        let playerWon = playRoundAndReportPlayerWin(humanChoice, computerChoice) ?? 0;
-        if (playerWon > 0) {
-            humanScore++;
-            announceWinnerBeatsLoser(humanChoice, computerChoice);
-        } else if (playerWon < 0) {
-            computerScore++;
-            announceWinnerBeatsLoser(computerChoice, humanChoice);
-        } else {
-            announceWinnerBeatsLoser(humanChoice, humanChoice, false);
-        }
-        console.log(`Player score: ${humanScore}\nComputer Score:${computerScore}`);
+buttons = document.querySelectorAll("button.play");
+buttons.forEach((button) => {
+    button.addEventListener("click", (clickEvent) => {
+        let playEvent = new CustomEvent("playEvent", {
+            bubbles: true,
+            cancelable: false,
+            detail: {
+                playerChoice: clickEvent.target.textContent.toLowerCase(),
+                computerChoice: getComputerChoice()
+            }
+        });
+        button.dispatchEvent(playEvent);
+    });
+});
+
+playArea = document.querySelector(".play-area");
+playArea.addEventListener('playEvent', (event) => {
+    const detail = event.detail;
+    const winConditions = {
+        rock: "scissors",
+        paper: "rock",
+        scissors: "paper"
     }
-    announceWinner(humanScore, computerScore);
-}
+
+    let roundTracker = document.querySelector(".round-tracker");
+    let playerScoreTracker = document.querySelector(".player-score-tracker");
+    let computerScoreTracker = document.querySelector(".computer-score-tracker");
+    let resultsDisplay = document.querySelector(".results-display");
+
+    if (!resultsDisplay) {
+        resultsDisplay = document.createElement("ul");
+        resultsDisplay.classList.add("results-display");
+    }
+
+    let playerScoreText = playerScoreTracker.textContent;
+    let computerScoreText = computerScoreTracker.textContent;
+
+    let playerScore = parseInt(playerScoreText.match(/\d+/)[0]);
+    let computerScore = parseInt(computerScoreText.match(/\d+/)[0]);
+
+    debugger;
+    if (winConditions[detail.playerChoice] === detail.computerChoice) {
+        playerScoreTracker.textContent = `Player score: ${playerScore + 1}`;
+    } else if (winConditions[detail.computerChoice] === detail.playerChoice) {
+        computerScoreTracker.textContent = `Computer score: ${computerScore + 1}`;
+    }
+
+    round = parseInt(roundTracker.textContent.match(/\d+/)[0]);
+    roundTracker.textContent = `Round: ${round + 1}`;
+})
 
 function announceWinner(humanScore, computerScore) {
     if (humanScore > computerScore) {
@@ -27,33 +57,12 @@ function announceWinner(humanScore, computerScore) {
     }
 }
 
-function playRoundAndReportPlayerWin(humanChoice, computerChoice) {
-    if (humanChoice === computerChoice) {
-        return 0;
-    }
-    winConditions = {
-        rock: "scissors",
-        scissors: "paper",
-        paper: "rock"
-    }
-    if (computerChoice === winConditions[humanChoice]) {
-        return 1;
-    } else {
-        return -1;
-    }
-}
-
 function announceWinnerBeatsLoser(choice1, choice2, notTied = true) {
     if (notTied) {
         console.log(`${choice1} beats ${choice2}`);
     } else {
         console.log(`${choice1} does not beat ${choice2}`);
     }
-}
-
-function getHumanChoice() {
-    let userChoice = prompt("Please enter rock, paper, or scissors");
-    return userChoice.toLowerCase();
 }
 
 function getComputerChoice() {
